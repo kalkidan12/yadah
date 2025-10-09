@@ -150,7 +150,7 @@ const SignupForm = () => {
                 className="w-full p-3 rounded-lg bg-white/90 border border-gray-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-400 outline-none transition"
               />
               <div
-                onClick={togglePasswordVisibility}
+                onClick={toggleRePasswordVisibility}
                 className="absolute right-3 top-3 cursor-pointer text-amber-600 hover:text-amber-700 transition-colors"
               >
                 {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
