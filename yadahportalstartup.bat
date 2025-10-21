@@ -7,7 +7,7 @@ REM ===============================================================
 
 REM -------- CONFIGURATION --------
 SET PROJECT_DIR=C:\ServerApps\yadahportal
-SET NEXT_HOST=10.109.28.200
+SET NEXT_HOST=0.0.0.0        
 SET NEXT_PORT=80
 SET NODE_ENV=production
 SET MONGO_SERVICE=MongoDB
@@ -90,14 +90,11 @@ IF ERRORLEVEL 1 (
 )
 pm2 save
 
-REM -------- RESURRECT PM2 PROCESSES (after reboot) --------
-pm2 resurrect
-echo.
-
 REM -------- STATUS OUTPUT --------
+echo.
 echo =========================================================
 echo YADAH PORTAL STARTED SUCCESSFULLY
-echo Host: %NEXT_HOST%
+echo Host: All interfaces (0.0.0.0) reachable via your LAN IP
 echo Port: %NEXT_PORT%
 echo Node Env: %NODE_ENV%
 echo PM2 Logs: %LOG_FILE%
