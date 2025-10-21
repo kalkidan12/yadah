@@ -1,100 +1,138 @@
-## 1️⃣ Organize Your Project
+# **Local Windows Server Setup Guide: Next.js + MongoDB + PM2**
 
-1. Create a dedicated folder for your server apps:
+This guide describes how to set up a Windows PC as a **LAN server** for a Next.js + MongoDB web application. The setup ensures:
 
-   C:\ServerApps
-
-2. Place your Next.js project inside:
-
-   C:\ServerApps\yadahportal
-
-3. Make sure your .env file (or environment variables) is correctly set for production:
-
-   NEXT_PUBLIC_API_URL=http://10.109.28.200:80/api
-   DATABASE_URI=mongodb://localhost:27017/yadah
-   NODE_ENV=production
+- Automatic start on Windows boot
+- Persistent PM2-managed app with crash recovery
+- MongoDB runs as a Windows service
+- LAN accessibility for other devices
 
 ---
 
-## 2️⃣ Install Node.js and npm
+## **1️⃣ Prerequisites**
 
-1. Download and install Node.js (LTS) from [https://nodejs.org](https://nodejs.org).
-2. Make sure Node.js is added to your PATH (the installer usually does this).
-3. Verify installation in Command Prompt:
-
-   node -v
-   npm -v
+1. **Windows 10/11 PC**
+2. **Node.js** installed (preferably latest LTS)
+3. **MongoDB Community Server** installed
+4. **Git** (optional, for cloning project)
+5. Internet access for installing npm packages
 
 ---
 
-## 3️⃣ Install PM2 globally
+## **2️⃣ Configure Server PC Network**
 
-Open Command Prompt as Administrator:
+1. **Assign a static LAN IP** so other devices can reliably access the server:
 
+   **Option A: Via Windows Settings**
+
+   - Open `Control Panel → Network and Sharing Center → Change adapter settings`.
+   - Right-click your network → `Properties → Internet Protocol Version 4 (TCP/IPv4) → Properties`.
+   - Select **“Use the following IP address”**:
+
+     - IP: `192.168.1.100` (example)
+     - Subnet mask: `255.255.255.0`
+     - Default gateway: your router IP (`192.168.1.1`)
+
+   - Save and test ping from another PC:
+
+     ```
+     ping 192.168.1.100
+     ```
+
+   **Option B: DHCP reservation on router** (recommended for professional setup)
+
+   - Log in to your router → DHCP settings → reserve IP for server MAC address.
+
+---
+
+## **3️⃣ MongoDB Setup**
+
+1. During installation, choose **“Install as a Windows Service”**.
+2. Configure **Startup type → Automatic** in `services.msc`.
+3. Start MongoDB service manually the first time if it’s not running:
+
+   ```
+   net start MongoDB
+   ```
+
+✅ MongoDB now starts automatically at Windows boot.
+
+---
+
+## **4️⃣ Next.js Application Setup**
+
+1. Navigate to your project directory:
+
+   ```bash
+   cd C:\ServerApps\yadah
+   ```
+
+2. Ensure your `package.json` has the **LAN-ready start script**:
+
+```json
+"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start -p 8080 -H 0.0.0.0",
+  "lint": "next lint"
+}
+```
+
+**Explanation:**
+
+- `-p 8080` → server runs on port **8080**
+- `-H 0.0.0.0` → binds to all network interfaces → accessible by other LAN devices
+
+---
+
+## **5️⃣ Install PM2 and Configure App Management**
+
+1. Install PM2 globally:
+
+```bash
 npm install -g pm2
+```
 
-Verify:
+2. Start your Next.js app via PM2:
 
-pm2 -v
+```bash
+pm2 start npm --name "yadah" -- start
+```
 
----
+3. Save PM2 process list for resurrection:
 
-## 4️⃣ Ensure MongoDB Service is Installed
-
-1. If MongoDB is installed via the Windows installer, it usually runs as a service named MongoDB.
-2. Check the service in PowerShell or CMD:
-
-   sc query MongoDB
-
-3. If it’s not installed, download MongoDB Community Edition and install as a Windows Service.
+```bash
+pm2 save
+```
 
 ---
 
-## 5️⃣ Prepare the Startup Script
+## **6️⃣ Configure PM2 Auto-start on Windows**
 
-1. Create yadahportalstartup.bat in your project directory:
+1. Install `pm2-windows-startup` globally:
 
-   C:\ServerApps\yadahportal\yadahportalstartup.bat
+```bash
+npm install pm2-windows-startup -g
+```
 
----
+2. Install startup script:
 
-## 6️⃣ Test the Script Manually
+```bash
+pm2-startup install
+```
 
-In Command Prompt as Administrator, run:
-
-cd C:\ServerApps\yadahportal
-yadahportalstartup.bat
-
-✅ Verify that:
-
-- MongoDB service starts (or is already running).
-- Next.js app builds (if not already built).
-- PM2 starts your app and shows online when you run:
-
-  pm2 status
-
-- Logs are written to %PROJECT_DIR%\pm2_yadah.log.
+- This ensures PM2 starts automatically on Windows boot and resurrects all saved apps.
+- PM2 will also **auto-restart your app if it crashes**.
 
 ---
 
-## 7️⃣ Configure PM2 to Auto-start on Windows Boot
+## **7️⃣ Testing LAN Access**
 
-No needs on windows
+1. From any device on the same network, open a browser and access:
 
-## 8️⃣ Add Script to Windows Startup (Optional Extra)
+```
+http://192.168.1.100:8080
+```
 
-- Press Win + R → shell:startup → place a shortcut to yadahportalstartup.bat in this folder.
-- This ensures your script runs even if PM2 didn’t automatically resurrect (double redundancy).
-
----
-
-## 9️⃣ Set Static IP and Firewall Rules
-
-1. Set your Windows PC to a static IP in your LAN (e.g., 10.109.28.200).
-2. Open port 80 in the firewall:
-
-   netsh advfirewall firewall add rule name="NextJS Port 80" dir=in action=allow protocol=TCP localport=80
-
-3. Now your Next.js frontend + API is accessible at:
-
-   http://10.109.28.200
+2. Your Next.js app should load successfully.
+3. Test MongoDB connections if required by your app.
