@@ -79,15 +79,7 @@ yadahportalstartup.bat
 
 ## 7️⃣ Configure PM2 to Auto-start on Windows Boot
 
-Run as Administrator:
-
-pm2 save
-pm2 startup
-
-- Copy the command PM2 outputs and run it once.
-- This ensures PM2 resurrects your app on reboot.
-
----
+No needs on windows
 
 ## 8️⃣ Add Script to Windows Startup (Optional Extra)
 
@@ -106,16 +98,3 @@ pm2 startup
 3. Now your Next.js frontend + API is accessible at:
 
    http://10.109.28.200
-
----
-
-## 10️⃣ Verify Everything
-
-1. Open a browser → go to http://10.109.28.200 → your portal should load.
-2. Check PM2 logs:
-
-   pm2 logs yadah-portal
-
-3. Check MongoDB service:
-
-   sc query MongoDB
