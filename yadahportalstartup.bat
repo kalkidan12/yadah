@@ -1,9 +1,8 @@
 @echo off
 REM ===============================================================
-REM  YADAH PORTAL FULL AUTOMATIC STARTUP SCRIPT
+REM  YADAH PORTAL FULL AUTOMATIC STARTUP SCRIPT (Windows-ready)
 REM  Location: C:\ServerApps\yadahportal\yadahportalstartup.bat
 REM  Purpose:  Start MongoDB + Next.js via PM2 on Windows boot
-REM  Author:   Kalkidan Getahun
 REM ===============================================================
 
 REM -------- CONFIGURATION --------
@@ -90,13 +89,9 @@ IF ERRORLEVEL 1 (
     exit /b 1
 )
 pm2 save
-echo.
 
-REM -------- CONFIGURE PM2 TO START ON WINDOWS BOOT --------
-REM Run only if PM2 startup not yet configured
-FOR /F "tokens=*" %%i IN ('pm2 startup ^| findstr /r /c:"pm2-startup.*cmd"') DO %%i
-pm2 save
-echo PM2 startup configured to run on Windows boot
+REM -------- RESURRECT PM2 PROCESSES (after reboot) --------
+pm2 resurrect
 echo.
 
 REM -------- STATUS OUTPUT --------
