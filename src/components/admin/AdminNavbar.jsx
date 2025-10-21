@@ -57,7 +57,7 @@ const AdminNavbar = ({ toggleSidebar }) => {
              text-lg md:text-xl lg:text-2xl font-extrabold tracking-wider select-none 
              transition-transform transform hover:scale-105 hover:drop-shadow-lg"
         >
-          YADAH WORSHIP MINISTRY PORTAL
+          YADAH PORTAL
         </span>
       </div>
 

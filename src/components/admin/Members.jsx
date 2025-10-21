@@ -6,12 +6,16 @@ import {
   useDeleteUserMutation,
   useGetUniqueFiltersQuery,
 } from "@/store/api/adminApiSlice";
+import ViewUserDetails from "./ViewUserDetails";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MemberForm from "../forms/MemberForm";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 const Members = () => {
+  const [viewUser, setViewUser] = useState(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
@@ -79,6 +83,18 @@ const Members = () => {
     }
   };
 
+  // Handler to open modal
+  const handleViewUser = (member) => {
+    setViewUser(member);
+    setIsViewOpen(true);
+  };
+
+  // Handler to close modal
+  const handleCloseView = () => {
+    setViewUser(null);
+    setIsViewOpen(false);
+  };
+
   const handleEdit = (member) => {
     setSelectedMember(member);
     setIsFormOpen(true);
@@ -144,138 +160,161 @@ const Members = () => {
         </div>
       </div>
 
-      {/* Filters & Search */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search members..."
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
-        />
-
-        <select
-          value={filters.gender}
-          onChange={(e) => handleFilterChange("gender", e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+      {/* Filter Section (Collapsible) */}
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
+        <button
+          onClick={() => setFiltersVisible((prev) => !prev)}
+          className="w-full flex justify-between items-center px-4 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold text-lg hover:opacity-90 transition"
         >
-          <option value="">All Genders</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-        </select>
+          <span>Filter & Search</span>
+          <span className="text-xl transform transition-transform duration-300">
+            {filtersVisible ? "▲" : "▼"}
+          </span>
+        </button>
 
-        <select
-          value={filters.maritalStatus}
-          onChange={(e) => handleFilterChange("maritalStatus", e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+        {/* Filter body (collapsible) */}
+        <div
+          className={`transition-all duration-500 ease-in-out ${
+            filtersVisible
+              ? "max-h-[1000px] opacity-100 p-4"
+              : "max-h-0 opacity-0 p-0"
+          } overflow-hidden`}
         >
-          <option value="">All Marital Status</option>
-          <option value="Single">Single</option>
-          <option value="Married">Married</option>
-          <option value="Divorced">Divorced</option>
-          <option value="Widowed">Widowed</option>
-        </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search members..."
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+            />
 
-        <select
-          value={filters.occupation}
-          onChange={(e) => handleFilterChange("occupation", e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
-        >
-          <option value="">All Occupations</option>
-          {filterData?.occupations?.map((o) => (
-            <option key={o} value={o}>
-              {o}
-            </option>
-          ))}
-        </select>
+            <select
+              value={filters.gender}
+              onChange={(e) => handleFilterChange("gender", e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+            >
+              <option value="">All Genders</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
 
-        <select
-          value={filters.skills}
-          onChange={(e) => handleFilterChange("skills", e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
-        >
-          <option value="">All Skills</option>
-          {filterData?.skills?.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+            <select
+              value={filters.maritalStatus}
+              onChange={(e) =>
+                handleFilterChange("maritalStatus", e.target.value)
+              }
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+            >
+              <option value="">All Marital Status</option>
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+              <option value="Divorced">Divorced</option>
+              <option value="Widowed">Widowed</option>
+            </select>
 
-        <select
-          value={filters.localChurchName}
-          onChange={(e) =>
-            handleFilterChange("localChurchName", e.target.value)
-          }
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
-        >
-          <option value="">All Churches</option>
-          {filterData?.localChurches?.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+            <select
+              value={filters.occupation}
+              onChange={(e) => handleFilterChange("occupation", e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+            >
+              <option value="">All Occupations</option>
+              {filterData?.occupations?.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
 
-        <select
-          value={filters.roleInLocalChurch}
-          onChange={(e) =>
-            handleFilterChange("roleInLocalChurch", e.target.value)
-          }
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
-        >
-          <option value="">All Roles (Church)</option>
-          {filterData?.rolesInLocalChurch?.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </select>
+            <select
+              value={filters.skills}
+              onChange={(e) => handleFilterChange("skills", e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+            >
+              <option value="">All Skills</option>
+              {filterData?.skills?.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
 
-        <select
-          value={filters.roleInYadahMinistry}
-          onChange={(e) =>
-            handleFilterChange("roleInYadahMinistry", e.target.value)
-          }
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
-        >
-          <option value="">All Roles (Yadah)</option>
-          {filterData?.rolesInYadahMinistry?.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </select>
+            <select
+              value={filters.localChurchName}
+              onChange={(e) =>
+                handleFilterChange("localChurchName", e.target.value)
+              }
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+            >
+              <option value="">All Churches</option>
+              {filterData?.localChurches?.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
 
-        <select
-          value={filters.educationalBackground}
-          onChange={(e) =>
-            handleFilterChange("educationalBackground", e.target.value)
-          }
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
-        >
-          <option value="">All Education</option>
-          {filterData?.educationalBackgrounds?.map((ed) => (
-            <option key={ed} value={ed}>
-              {ed}
-            </option>
-          ))}
-        </select>
+            <select
+              value={filters.roleInLocalChurch}
+              onChange={(e) =>
+                handleFilterChange("roleInLocalChurch", e.target.value)
+              }
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+            >
+              <option value="">All Roles (Church)</option>
+              {filterData?.rolesInLocalChurch?.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
 
-        <select
-          value={filters.batchInYadahMinistry}
-          onChange={(e) =>
-            handleFilterChange("batchInYadahMinistry", e.target.value)
-          }
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
-        >
-          <option value="">All Batches</option>
-          {filterData?.batchesInYadah?.map((b) => (
-            <option key={b} value={b}>
-              {b}
-            </option>
-          ))}
-        </select>
+            <select
+              value={filters.roleInYadahMinistry}
+              onChange={(e) =>
+                handleFilterChange("roleInYadahMinistry", e.target.value)
+              }
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+            >
+              <option value="">All Roles (Yadah)</option>
+              {filterData?.rolesInYadahMinistry?.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filters.educationalBackground}
+              onChange={(e) =>
+                handleFilterChange("educationalBackground", e.target.value)
+              }
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+            >
+              <option value="">All Education</option>
+              {filterData?.educationalBackgrounds?.map((ed) => (
+                <option key={ed} value={ed}>
+                  {ed}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filters.batchInYadahMinistry}
+              onChange={(e) =>
+                handleFilterChange("batchInYadahMinistry", e.target.value)
+              }
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+            >
+              <option value="">All Batches</option>
+              {filterData?.batchesInYadah?.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Member Form */}
@@ -286,6 +325,10 @@ const Members = () => {
           onClose={() => setIsFormOpen(false)}
           handleSubmitUser={handleSubmitMember}
         />
+      )}
+
+      {isViewOpen && viewUser && (
+        <ViewUserDetails user={viewUser} onClose={handleCloseView} />
       )}
 
       {/* Table */}
@@ -375,6 +418,12 @@ const Members = () => {
                     className="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded w-[70px]"
                   >
                     Edit
+                  </button>
+                  <button
+                    onClick={() => handleViewUser(member)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded w-[70px]"
+                  >
+                    View
                   </button>
                   <button
                     onClick={() => handleDelete(member._id)}
