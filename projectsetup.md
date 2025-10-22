@@ -64,7 +64,7 @@ This guide describes how to set up a Windows PC as a **LAN server** for a Next.j
 1. Navigate to your project directory:
 
    ```bash
-   cd C:\ServerApps\yadah
+   cd C:\ServerApps\yadahportal
    ```
 
 2. Ensure your `package.json` has the **LAN-ready start script**:
@@ -96,7 +96,7 @@ npm install -g pm2
 2. Start your Next.js app via PM2:
 
 ```bash
-pm2 start npm --name "yadah" -- start
+pm2 start npm --name "yadahportal" -- start
 ```
 
 3. Save PM2 process list for resurrection:
