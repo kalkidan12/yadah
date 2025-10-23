@@ -83,7 +83,7 @@ NEXT_PUBLIC_API_URL=http://192.168.1.100:8080/api
 
 ---
 
-✅ **Tips:**
+**Tips:**
 
 - This works best with **routers**, not mobile hotspots.
 - If you plan a permanent LAN server, **DHCP reservation is the most professional and stable approach**.
