@@ -83,6 +83,32 @@ NEXT_PUBLIC_API_URL=http://192.168.1.100:8080/api
 
 ---
 
+## **Step 7: Rebuild containers so the app uses the correct URLs:**
+
+```bash
+docker-compose build
+docker-compose up -d
+```
+
+---
+
+### **Step 8: Firewall rules**
+
+1. Open **Windows Defender Firewall → Advanced Settings**.
+2. Add **Inbound Rule** for TCP port `8080` (Next.js) → allow access.
+
+---
+
+### **Step 9: Test from other devices**
+
+From another device on the same network, open a browser:
+
+```
+http://192.168.1.100:8080
+```
+
+You should see your app. API calls will also work if the `.env` URLs match the static IP.
+
 **Tips:**
 
 - This works best with **routers**, not mobile hotspots.
