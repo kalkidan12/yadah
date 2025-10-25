@@ -21,7 +21,7 @@ if errorlevel 1 (
     timeout /t 30 >nul
     docker info >nul 2>&1
     if errorlevel 1 (
-        echo Docker did not start. Start Docker manually.
+        echo Docker did not start. Please start Docker manually.
         pause
         exit /b 1
     )
@@ -47,7 +47,30 @@ if errorlevel 1 (
 echo MongoDB is healthy.
 
 REM ----------------------------
-REM 4. Start Next.js locally
+REM 4. Install Node.js dependencies if needed
+REM ----------------------------
+if not exist "node_modules" (
+    echo Installing Node.js dependencies...
+    npm ci >> "%LOG_FILE%" 2>&1
+) else (
+    echo Node.js dependencies already installed. Skipping...
+)
+
+REM ----------------------------
+REM 5. Build Next.js project if needed
+REM ----------------------------
+if not exist ".next" (
+    echo Building Next.js project...
+    npm run build >> "%LOG_FILE%" 2>&1
+) else (
+    echo Next.js build already exists. Skipping...
+)
+
+REM ----------------------------
+REM 6. Start Next.js locally
 REM ----------------------------
 echo Starting Next.js locally...
-npm run start >> "%LOG_FILE%" 2>&1
+start "" npm run start >> "%LOG_FILE%" 2>&1
+
+echo All services started. Logs are at %LOG_FILE%
+pause
