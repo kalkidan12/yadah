@@ -30,7 +30,7 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
-    healthcheck: # Healthcheck restored
+    healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
       interval: 10s
       timeout: 5s
