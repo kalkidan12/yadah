@@ -22,6 +22,9 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
+# Install curl for the healthcheck command
+RUN apk add --no-cache curl  # <-- FIXED: Added curl for healthcheck
+
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package*.json ./

@@ -50,22 +50,16 @@ if errorlevel 1 (
 echo MongoDB is healthy.
 
 REM ----------------------------
-REM 4. Wait for Next.js app to respond on host
+REM 4. Wait for Next.js app to become healthy
 REM ----------------------------
-echo Waiting for Next.js app to respond on http://localhost:8080...
-set /a counter=0
+echo Waiting for Next.js app to become healthy...
 :WAIT_APP
-powershell -Command "(Invoke-WebRequest -Uri http://localhost:8080 -UseBasicParsing -ErrorAction SilentlyContinue).StatusCode" >nul 2>&1
+docker inspect --format='{{.State.Health.Status}}' yadah-app 2>nul | find "healthy" >nul
 if errorlevel 1 (
     timeout /t 5 >nul
-    set /a counter+=5
-    if %counter% GEQ 60 (
-        echo Next.js app did not respond within 60 seconds.
-        exit /b 1
-    )
     goto WAIT_APP
 )
-echo Next.js app is responding.
+echo Next.js app is healthy.
 
 REM ----------------------------
 REM 5. Show live logs
