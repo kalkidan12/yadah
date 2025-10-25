@@ -38,16 +38,16 @@ echo Starting Docker containers...
 docker-compose up -d >> "%LOG_FILE%" 2>&1
 
 REM ----------------------------
-REM 3. Wait for MongoDB to be ready
+REM 3. Wait for app container to be running
 REM ----------------------------
-echo Waiting for MongoDB to become healthy...
-:WAIT_MONGO
-docker exec yadah-mongo mongo --eval "db.adminCommand('ping')" >nul 2>&1
+echo Waiting for app container to start...
+:WAIT_APP
+docker ps --filter "name=yadah-nextjs" --filter "status=running" | find "yadah-nextjs" >nul
 if errorlevel 1 (
     timeout /t 5 >nul
-    goto WAIT_MONGO
+    goto WAIT_APP
 )
-echo MongoDB is ready.
+echo App container is running.
 
 REM ----------------------------
 REM 4. Show live logs

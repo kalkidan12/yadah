@@ -1,4 +1,18 @@
 services:
+  mongo:
+    image: mongo:6
+    container_name: yadah-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   app:
     build:
       context: .
@@ -10,15 +24,8 @@ services:
       - "8080:8080"
     restart: always
     depends_on:
-      - mongo
-
-  mongo:
-    image: mongo:6
-    container_name: yadah-mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
+      mongo:
+        condition: service_healthy
 
 volumes:
   mongo_data:
