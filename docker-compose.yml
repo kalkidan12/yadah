@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   mongo:
     image: mongo:4.4
@@ -18,7 +20,6 @@ services:
       context: .
       args:
         NEXT_PUBLIC_API_URL: http://localhost:8080/api
-    container_name: yadah-app
     env_file:
       - .env
     ports:
