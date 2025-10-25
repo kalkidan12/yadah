@@ -26,7 +26,7 @@ if errorlevel 1 (
         exit /b 1
     )
 )
-echo Docker is running.
+echo ✅ Docker is running.
 
 REM ----------------------------
 REM 2. Build and start Docker services
@@ -50,22 +50,16 @@ if errorlevel 1 (
 echo ✅ MongoDB is healthy.
 
 REM ----------------------------
-REM 4. Wait for App to respond on HTTP
+REM 4. Wait for App container to be healthy
 REM ----------------------------
-echo Waiting for Next.js app to respond on http://localhost:8080...
-set /a counter=0
-:WAIT_APP
-powershell -Command "(Invoke-WebRequest -Uri http://localhost:8080 -UseBasicParsing -ErrorAction SilentlyContinue).StatusCode" >nul 2>&1
+echo Waiting for Next.js app container to be healthy...
+:WAIT_APP_CONTAINER
+docker inspect --format='{{.State.Health.Status}}' yadah-app 2>nul | find "healthy" >nul
 if errorlevel 1 (
     timeout /t 5 >nul
-    set /a counter+=5
-    if %counter% GEQ 60 (
-        echo ❌ App did not respond within 60 seconds.
-        exit /b 1
-    )
-    goto WAIT_APP
+    goto WAIT_APP_CONTAINER
 )
-echo ✅ App is responding.
+echo ✅ App container is healthy.
 
 REM ----------------------------
 REM 5. Show live logs
