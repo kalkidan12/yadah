@@ -40,14 +40,20 @@ docker-compose up -d >> "%LOG_FILE%" 2>&1
 REM ----------------------------
 REM 3. Wait for app container to be running
 REM ----------------------------
-echo Waiting for app container to start...
+echo Waiting for app container to start (timeout 60s)...
+set /a counter=0
 :WAIT_APP
-docker ps --filter "name=yadah-nextjs" --filter "status=running" | find "yadah-nextjs" >nul
+docker ps --filter "name=yadah-app" --filter "status=running" | find "yadah-app" >nul
 if errorlevel 1 (
     timeout /t 5 >nul
+    set /a counter+=5
+    if %counter% GEQ 60 (
+        echo ❌ App container failed to start within 60 seconds.
+        exit /b 1
+    )
     goto WAIT_APP
 )
-echo App container is running.
+echo ✅ App container is running.
 
 REM ----------------------------
 REM 4. Show live logs
