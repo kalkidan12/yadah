@@ -1,6 +1,6 @@
 @echo off
 REM =================================================
-REM YadahPortal Startup Script - Docker Version (Windows 10/Server 2012)
+REM YadahPortal Startup Script - Docker Version (Windows 10)
 REM Auto-start Docker, MongoDB, and Next.js app
 REM =================================================
 
@@ -16,17 +16,17 @@ echo Checking if Docker is running...
 docker info >nul 2>&1
 if errorlevel 1 (
     echo Docker is not running. Starting Docker Desktop...
-    start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+    start "" "C:\Program Files\Docker\Docker Desktop.exe"
     echo Waiting for Docker to initialize...
     timeout /t 30 >nul
     docker info >nul 2>&1
     if errorlevel 1 (
-        echo ❌ Docker did not start. Start Docker manually.
+        echo Docker did not start. Start Docker manually.
         pause
         exit /b 1
     )
 )
-echo ✅ Docker is running.
+echo Docker is running.
 
 REM ----------------------------
 REM 2. Build and start Docker services
@@ -47,19 +47,25 @@ if errorlevel 1 (
     timeout /t 5 >nul
     goto WAIT_MONGO
 )
-echo ✅ MongoDB is healthy.
+echo MongoDB is healthy.
 
 REM ----------------------------
-REM 4. Wait for Next.js app to become healthy
+REM 4. Wait for Next.js app to respond on host
 REM ----------------------------
-echo Waiting for Next.js app to respond...
+echo Waiting for Next.js app to respond on http://localhost:8080...
+set /a counter=0
 :WAIT_APP
-docker inspect --format='{{.State.Health.Status}}' yadah-app 2>nul | find "healthy" >nul
+powershell -Command "(Invoke-WebRequest -Uri http://localhost:8080 -UseBasicParsing -ErrorAction SilentlyContinue).StatusCode" >nul 2>&1
 if errorlevel 1 (
     timeout /t 5 >nul
+    set /a counter+=5
+    if %counter% GEQ 60 (
+        echo Next.js app did not respond within 60 seconds.
+        exit /b 1
+    )
     goto WAIT_APP
 )
-echo ✅ Next.js app is healthy.
+echo Next.js app is responding.
 
 REM ----------------------------
 REM 5. Show live logs
