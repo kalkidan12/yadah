@@ -9,32 +9,11 @@ services:
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      # Using CMD is generally more reliable than CMD-SHELL with complex quotes
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      test:
+        ["CMD-SHELL", 'mongosh --eval ''db.adminCommand("ping")'' || exit 1']
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 10s
-
-  app:
-    build:
-      context: .
-      args:
-        NEXT_PUBLIC_API_URL: http://localhost:8080/api
-    container_name: yadah-app
-    env_file:
-      - .env
-    ports:
-      - "8080:8080"
-    restart: always
-    depends_on:
-      mongo:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
       start_period: 10s
 
 volumes:
