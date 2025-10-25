@@ -2,14 +2,15 @@ version: "3.9"
 
 services:
   mongo:
-    image: mongo:4.4
+    image: mongo:6
     container_name: yadah-mongo
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      test:
+        ["CMD-SHELL", 'mongosh --eval ''db.adminCommand("ping")'' || exit 1']
       interval: 10s
       timeout: 5s
       retries: 10
@@ -30,13 +31,7 @@ services:
       mongo:
         condition: service_healthy
     healthcheck:
-      test:
-        [
-          "CMD",
-          "powershell",
-          "-Command",
-          "(Invoke-WebRequest -Uri http://localhost:8080 -UseBasicParsing -ErrorAction SilentlyContinue).StatusCode",
-        ]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
